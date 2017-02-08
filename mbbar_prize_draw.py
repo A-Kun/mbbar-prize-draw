@@ -42,6 +42,7 @@ SOFTWARE = {u'1Password': 2,
             u'PDF Expert': 2,
             u'TotalFinder': 1,
             u'Volume Mixer': 1}
+EXCLUDE = {u'假的MJ狂Fan'}
 result = {}
 
 
@@ -129,6 +130,10 @@ def read_from_ui():
 
 def write_to_file():
     if tkMessageBox.askyesno("", "点击确定后将弹出统计结果，请核对并调整后**保存文件**，并再次点击确定开始抽奖。"):
+        for next_ex in EXCLUDE:
+            if next_ex in result:
+                del result[next_ex]
+
         soft_list_encoded = list(SOFTWARE.keys())
         for i in range(len(soft_list_encoded)):
             soft_list_encoded[i] = soft_list_encoded[i].encode('utf-8')
