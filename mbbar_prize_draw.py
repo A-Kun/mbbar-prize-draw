@@ -98,23 +98,23 @@ def read_thread_users(content):
         if ids[i] in result:
             if result[ids[i]]['post_bonus'] < 3:
                 result[ids[i]]['post_bonus'] += 1
-            result[ids[i]]['text'] += texts[i].lower().replace(' ','')
+            result[ids[i]]['text'] += texts[i].lower().replace(' ', '').replace('-', '')
         else:
             if int(lvs[i]) >= 9:
                 lv_bonus = (int(lvs[i]) - 8) * 2
             else:
                 lv_bonus = 0
-            result[ids[i]] = {'lv': int(lvs[i]), 'lv_bonus': lv_bonus, 'post_bonus': 1, 'text': texts[i].lower().replace(' ','')}
+            result[ids[i]] = {'lv': int(lvs[i]), 'lv_bonus': lv_bonus, 'post_bonus': 1, 'text': texts[i].lower().replace(' ', '').replace('-', '')}
             result[ids[i]].update(default_soft)
 
     for next_id in result:
         for next_soft in SOFTWARE:
-            if next_soft.lower().replace(' ','') in result[next_id]['text']:
+            if next_soft.lower().replace(' ', '').replace('-', '') in result[next_id]['text']:
                 result[next_id][next_soft] = 10
                 result[next_id]['software_bonus'] = 10
         if u'软件' in result[next_id]['text'] or u'app' in result[next_id]['text']:
             result[next_id]['software_bonus'] = 10
-        if u'13-inch' in result[next_id]['text'] or u'13寸' in result[next_id]['text']:
+        if u'13inch' in result[next_id]['text'] or u'13寸' in result[next_id]['text'] or u'十三寸' in result[next_id]['text']:
             result[next_id]['hardware_bonus'] = 10
 
     PAGE_COUNT[0] += 1
