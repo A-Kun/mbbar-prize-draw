@@ -90,8 +90,8 @@ def read_thread_users(content):
 
     default_soft = {}
     for next_soft in SOFTWARE:
-        default_soft[next_soft] = False
-    default_soft.update({'hardware': False, 'software': False})
+        default_soft[next_soft] = 0
+    default_soft.update({'hardware_bonus': 0, 'software_bonus': 0})
 
     for i in range(len(lvs)):
         if ids[i] in result:
@@ -109,12 +109,12 @@ def read_thread_users(content):
     for next_id in result:
         for next_soft in SOFTWARE:
             if next_soft.lower().replace(' ','') in result[next_id]['text']:
-                result[next_id][next_soft] = True
-                result[next_id]['software'] = True
+                result[next_id][next_soft] = 10
+                result[next_id]['software_bonus'] = 10
         if u'软件' in result[next_id]['text'] or u'app' in result[next_id]['text']:
-            result[next_id]['software'] = True
+            result[next_id]['software_bonus'] = 10
         if u'13-inch' in result[next_id]['text'] or u'13寸' in result[next_id]['text']:
-            result[next_id]['software'] = True
+            result[next_id]['hardware_bonus'] = 10
 
     PAGE_COUNT[0] += 1
     prompt1.configure(text='提取成功')
@@ -137,10 +137,10 @@ def write_to_file():
         with open(OUTPUT, 'wb') as csvfile:
             writer = csv.writer(csvfile)
             titles = ['id', 'lv', 'lv_bonus', 'post_bonus'] + list(SOFTWARE.keys()) + ['text']
-            write_titles = ['id', 'lv', 'lv_bonus', 'post_bonus', 'hardware', 'software'] + soft_list_encoded + ['text']
+            write_titles = ['id', 'lv', 'lv_bonus', 'post_bonus', 'hardware_bonus', 'software_bonus'] + soft_list_encoded + ['text']
             writer.writerow(write_titles)
             for next_id in result:
-                next_row = [next_id, result[next_id]['lv'], result[next_id]['lv_bonus'], result[next_id]['post_bonus'], result[next_id]['hardware'], result[next_id]['software']]
+                next_row = [next_id, result[next_id]['lv'], result[next_id]['lv_bonus'], result[next_id]['post_bonus'], result[next_id]['hardware_bonus'], result[next_id]['software_bonus']]
                 for next_soft in SOFTWARE:
                     next_row.append(result[next_id][next_soft])
                 for i in range(len(next_row)):
