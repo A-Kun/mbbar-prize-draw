@@ -88,7 +88,6 @@ def read_thread_users(content):
         content3 = content3[index_end + len(TEXT_CLOSE_TAG):]
         index = content3.find(TEXT_IDENTIFIER)
 
-
     default_soft = {}
     for next_soft in SOFTWARE:
         default_soft[next_soft] = 0
@@ -137,7 +136,6 @@ def write_to_file():
         soft_list_encoded = list(SOFTWARE.keys())
         for i in range(len(soft_list_encoded)):
             soft_list_encoded[i] = soft_list_encoded[i].encode('utf-8')
-
 
         with open(OUTPUT, 'wb') as csvfile:
             writer = csv.writer(csvfile)
