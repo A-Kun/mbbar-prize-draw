@@ -161,7 +161,7 @@ def write_to_file():
 
 
 def draw():
-    for i in range(6):
+    for i in range(7):
         draw_list = []
         for next_id in result:
             bonus = result[next_id]['lv_bonus'] + result[next_id]['post_bonus'] + result[next_id]['hardware_bonus']
