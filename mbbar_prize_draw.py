@@ -27,7 +27,7 @@ from Tkinter import *
 import tkMessageBox
 import csv
 import os
-import time
+import random
 
 
 HOME = expanduser("~")
@@ -156,8 +156,38 @@ def write_to_file():
                 next_row.append(result[next_id]['text'].encode('utf-8'))
                 writer.writerow(next_row)
         os.system('open -a Numbers.app ' + OUTPUT)
-        tkMessageBox.showinfo("", "抽奖功能暂未实装，敬请期待")
 
+        draw()
+
+        tkMessageBox.showinfo("", "抽奖结果已输出至终端。")
+
+
+def draw():
+    for i in range(6):
+        draw_list = []
+        for next_id in result:
+            bonus = result[next_id]['lv_bonus'] + result[next_id]['post_bonus'] + result[next_id]['hardware_bonus']
+            for j in range(bonus):
+                draw_list.append(next_id)
+        random.shuffle(draw_list)
+        print 'Tomtoc 电脑包:',
+        print draw_list[0],
+        print '(' + str(draw_list.count(draw_list[0])) + 'x)'
+        del result[draw_list[0]]
+
+    items = SOFTWARE.keys()
+    for next_item in items:
+        for i in range(SOFTWARE[next_item]):
+            draw_list = []
+            for next_id in result:
+                bonus = result[next_id]['lv_bonus'] + result[next_id]['post_bonus'] + result[next_id]['software_bonus'] + result[next_id][next_item]
+                for j in range(bonus):
+                    draw_list.append(next_id)
+            random.shuffle(draw_list)
+            print next_item + ':',
+            print draw_list[0],
+            print '(' + str(draw_list.count(draw_list[0])) + 'x)'
+            del result[draw_list[0]]
 
 
 if __name__ == '__main__':
