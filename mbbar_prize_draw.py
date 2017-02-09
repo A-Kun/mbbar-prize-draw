@@ -129,7 +129,7 @@ def read_from_ui():
 
 
 def write_to_file():
-    if tkMessageBox.askyesno("", "点击确定后将弹出统计结果，请核对并调整后**保存文件**，并再次点击确定开始抽奖。"):
+    if tkMessageBox.askyesno("", "点击确定后将弹出统计结果并开始抽奖。"):
         for next_ex in EXCLUDE:
             if next_ex in result:
                 del result[next_ex]
@@ -156,9 +156,7 @@ def write_to_file():
                 next_row.append(result[next_id]['text'].encode('utf-8'))
                 writer.writerow(next_row)
         os.system('open -a Numbers.app ' + OUTPUT)
-        time.sleep(1)
-        if tkMessageBox.askyesno("", "请核对并调整后**保存文件**，并再次点击确定开始抽奖。"):
-            tkMessageBox.askyesno("", "抽奖功能暂未实装，敬请期待")
+        tkMessageBox.showinfo("", "抽奖功能暂未实装，敬请期待")
 
 
 
