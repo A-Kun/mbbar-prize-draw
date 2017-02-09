@@ -33,6 +33,7 @@ import random
 HOME = expanduser("~")
 OUTPUT = HOME + '/Desktop/result.csv'
 PAGE_COUNT = [1]
+HARDWARE_COUNT = 7
 SOFTWARE = {u'1Password': 2,
             u'CleanMyMac': 2,
             u'CmdTap': 3,
@@ -161,7 +162,7 @@ def write_to_file():
 
 
 def draw():
-    for i in range(7):
+    for i in range(HARDWARE_COUNT):
         draw_list = []
         for next_id in result:
             bonus = result[next_id]['lv_bonus'] + result[next_id]['post_bonus'] + result[next_id]['hardware_bonus']
