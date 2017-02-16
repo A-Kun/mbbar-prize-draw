@@ -33,61 +33,45 @@ import random
 HOME = expanduser("~")
 OUTPUT = HOME + '/Desktop/result.csv'
 PAGE_COUNT = [1]
-HARDWARE_COUNT = 7
+HARDWARE_COUNT = 7 - 1  # 钦定
 SOFTWARE = {u'1Password': 2,
             u'CleanMyMac': 2,
             u'CmdTap': 3,
-            u'Disk Drill': 1,
+            # u'Disk Drill': 1, 钦定
             u'Jitouch': 1,
             u'KeyCue': 3,
-            u'PDF Expert': 2,
+            u'PDF Expert': 2 - 1,  # 钦定
             u'TotalFinder': 1,
             u'Volume Mixer': 1}
 EXCLUDE = {u'假的MJ狂Fan'}
-result = {}
+RESULT = {}
+
+
+def parse_text(content, start, end, result):
+    index = content.find(start)
+    while index != -1:
+        index_start = index + len(start)
+        index_end = content.find(end, index_start)
+        next_result = content[index_start:index_end]
+        result.append(next_result)
+        content = content[index_end + len(start):]
+        index = content.find(start)
 
 
 def read_thread_users(content):
-    ID_IDENTIFIER = """fr=pb&ie=utf-8" target="_blank">"""
-    ID_CLOSE_TAG = """</a>"""
-    LV_IDENTIFIER = """level_id&quot;:"""
-    TEXT_IDENTIFIER = """class="d_post_content j_d_post_content  clearfix">"""
-    TEXT_CLOSE_TAG = """</div>"""
-    COMMA = ""","""
-
-    content1 = content
-    content2 = content
-    content3 = content
+    lv_start = """level_id&quot;:"""
+    lv_end = ""","""
+    id_start = """fr=pb&ie=utf-8" target="_blank">"""
+    id_end = """</a>"""
+    text_start = """class="d_post_content j_d_post_content  clearfix">"""
+    text_end = """</div>"""
 
     lvs = []
-    index = content1.find(LV_IDENTIFIER)
-    while index != -1:
-        index_start = index + len(LV_IDENTIFIER)
-        index_end = content1.find(COMMA, index_start)
-        next_id = content1[index_start:index_end]
-        lvs.append(next_id)
-        content1 = content1[index_end + len(COMMA):]
-        index = content1.find(LV_IDENTIFIER)
-
     ids = []
-    index = content2.find(ID_IDENTIFIER)
-    while index != -1:
-        index_start = index + len(ID_IDENTIFIER)
-        index_end = content2.find(ID_CLOSE_TAG, index_start)
-        next_id = content2[index_start:index_end]
-        ids.append(next_id)
-        content2 = content2[index_end + len(ID_CLOSE_TAG):]
-        index = content2.find(ID_IDENTIFIER)
-
     texts = []
-    index = content3.find(TEXT_IDENTIFIER)
-    while index != -1:
-        index_start = index + len(TEXT_IDENTIFIER)
-        index_end = content3.find(TEXT_CLOSE_TAG, index_start)
-        next_text = content3[index_start:index_end]
-        texts.append(next_text)
-        content3 = content3[index_end + len(TEXT_CLOSE_TAG):]
-        index = content3.find(TEXT_IDENTIFIER)
+    parse_text(content, lv_start, lv_end, lvs)
+    parse_text(content, id_start, id_end, ids)
+    parse_text(content, text_start, text_end, texts)
 
     default_soft = {}
     for next_soft in SOFTWARE:
@@ -95,27 +79,27 @@ def read_thread_users(content):
     default_soft.update({'hardware_bonus': 0, 'software_bonus': 0})
 
     for i in range(len(lvs)):
-        if ids[i] in result:
-            if result[ids[i]]['post_bonus'] < 3:
-                result[ids[i]]['post_bonus'] += 1
-            result[ids[i]]['text'] += texts[i].lower().replace(' ', '').replace('-', '')
+        if ids[i] in RESULT:
+            if RESULT[ids[i]]['post_bonus'] < 3:
+                RESULT[ids[i]]['post_bonus'] += 1
+            RESULT[ids[i]]['text'] += texts[i].lower().replace(' ', '').replace('-', '')
         else:
             if int(lvs[i]) >= 9:
                 lv_bonus = (int(lvs[i]) - 8) * 2
             else:
                 lv_bonus = 0
-            result[ids[i]] = {'lv': int(lvs[i]), 'lv_bonus': lv_bonus, 'post_bonus': 1, 'text': texts[i].lower().replace(' ', '').replace('-', '')}
-            result[ids[i]].update(default_soft)
+            RESULT[ids[i]] = {'lv': int(lvs[i]), 'lv_bonus': lv_bonus, 'post_bonus': 1, 'text': texts[i].lower().replace(' ', '').replace('-', '')}
+            RESULT[ids[i]].update(default_soft)
 
-    for next_id in result:
+    for next_id in RESULT:
         for next_soft in SOFTWARE:
-            if next_soft.lower().replace(' ', '').replace('-', '') in result[next_id]['text']:
-                result[next_id][next_soft] = 10
-                result[next_id]['software_bonus'] = 10
-        if u'软件' in result[next_id]['text'] or u'app' in result[next_id]['text']:
-            result[next_id]['software_bonus'] = 10
-        if u'13inch' in result[next_id]['text'] or u'13寸' in result[next_id]['text'] or u'十三寸' in result[next_id]['text']:
-            result[next_id]['hardware_bonus'] = 10
+            if next_soft.lower().replace(' ', '').replace('-', '') in RESULT[next_id]['text']:
+                RESULT[next_id][next_soft] = 10
+                RESULT[next_id]['software_bonus'] = 10
+        if u'软件' in RESULT[next_id]['text'] or u'app' in RESULT[next_id]['text']:
+            RESULT[next_id]['software_bonus'] = 10
+        if u'13inch' in RESULT[next_id]['text'] or u'13寸' in RESULT[next_id]['text'] or u'十三寸' in RESULT[next_id]['text']:
+            RESULT[next_id]['hardware_bonus'] = 10
 
     PAGE_COUNT[0] += 1
     prompt1.configure(text='提取成功')
@@ -131,8 +115,8 @@ def read_from_ui():
 def write_to_file():
     if tkMessageBox.askyesno("", "点击确定后将弹出统计结果并开始抽奖。"):
         for next_ex in EXCLUDE:
-            if next_ex in result:
-                del result[next_ex]
+            if next_ex in RESULT:
+                del RESULT[next_ex]
 
         soft_list_encoded = list(SOFTWARE.keys())
         for i in range(len(soft_list_encoded)):
@@ -143,16 +127,16 @@ def write_to_file():
             titles = ['id', 'lv', 'lv_bonus', 'post_bonus'] + list(SOFTWARE.keys()) + ['text']
             write_titles = ['id', 'lv', 'lv_bonus', 'post_bonus', 'hardware_bonus', 'software_bonus'] + soft_list_encoded + ['text']
             writer.writerow(write_titles)
-            for next_id in result:
-                next_row = [next_id, result[next_id]['lv'], result[next_id]['lv_bonus'], result[next_id]['post_bonus'], result[next_id]['hardware_bonus'], result[next_id]['software_bonus']]
+            for next_id in RESULT:
+                next_row = [next_id, RESULT[next_id]['lv'], RESULT[next_id]['lv_bonus'], RESULT[next_id]['post_bonus'], RESULT[next_id]['hardware_bonus'], RESULT[next_id]['software_bonus']]
                 for next_soft in SOFTWARE:
-                    next_row.append(result[next_id][next_soft])
+                    next_row.append(RESULT[next_id][next_soft])
                 for i in range(len(next_row)):
                     if type(next_row[i]) is unicode:
                         next_row[i] = next_row[i].encode('utf-8')
                     else:
                         next_row[i] = str(next_row[i])
-                next_row.append(result[next_id]['text'].encode('utf-8'))
+                next_row.append(RESULT[next_id]['text'].encode('utf-8'))
                 writer.writerow(next_row)
         os.system('open -a Numbers.app ' + OUTPUT)
 
@@ -164,29 +148,29 @@ def write_to_file():
 def draw():
     for i in range(HARDWARE_COUNT):
         draw_list = []
-        for next_id in result:
-            bonus = result[next_id]['lv_bonus'] + result[next_id]['post_bonus'] + result[next_id]['hardware_bonus']
+        for next_id in RESULT:
+            bonus = RESULT[next_id]['lv_bonus'] + RESULT[next_id]['post_bonus'] + RESULT[next_id]['hardware_bonus']
             for j in range(bonus):
                 draw_list.append(next_id)
         random.shuffle(draw_list)
         print 'Tomtoc 电脑包:',
         print draw_list[0],
         print '(' + str(draw_list.count(draw_list[0])) + 'x)'
-        del result[draw_list[0]]
+        del RESULT[draw_list[0]]
 
     items = SOFTWARE.keys()
     for next_item in items:
         for i in range(SOFTWARE[next_item]):
             draw_list = []
-            for next_id in result:
-                bonus = result[next_id]['lv_bonus'] + result[next_id]['post_bonus'] + result[next_id]['software_bonus'] + result[next_id][next_item]
+            for next_id in RESULT:
+                bonus = RESULT[next_id]['lv_bonus'] + RESULT[next_id]['post_bonus'] + RESULT[next_id]['software_bonus'] + RESULT[next_id][next_item]
                 for j in range(bonus):
                     draw_list.append(next_id)
             random.shuffle(draw_list)
             print next_item + ':',
             print draw_list[0],
             print '(' + str(draw_list.count(draw_list[0])) + 'x)'
-            del result[draw_list[0]]
+            del RESULT[draw_list[0]]
 
 
 if __name__ == '__main__':
