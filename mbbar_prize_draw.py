@@ -124,20 +124,19 @@ def read_thread_users(content):
 
     for i in range(len(lvs)):
         if ids[i] in RESULT:
-            if RESULT[ids[i]]['post_bonus'] < 3:
-                RESULT[ids[i]]['post_bonus'] += 1
-            RESULT[ids[i]]['text'] += texts[i].lower().replace(' ', '').replace('-', '')
+            RESULT[ids[i]]['post_bonus'] += 1
+            RESULT[ids[i]]['text'] += process_text(texts[i])
         else:
             if int(lvs[i]) >= 9:
                 lv_bonus = (int(lvs[i]) - 8) * 2
             else:
                 lv_bonus = 0
-            RESULT[ids[i]] = {'lv': int(lvs[i]), 'lv_bonus': lv_bonus, 'post_bonus': 1, 'text': texts[i].lower().replace(' ', '').replace('-', '')}
+            RESULT[ids[i]] = {'lv': int(lvs[i]), 'lv_bonus': lv_bonus, 'post_bonus': 1, 'text': process_text(texts[i])}
             RESULT[ids[i]].update(default_soft)
 
     for next_id in RESULT:
         for next_soft in SOFTWARE:
-            if next_soft.lower().replace(' ', '').replace('-', '') in RESULT[next_id]['text']:
+            if process_text(next_soft) in RESULT[next_id]['text']:
                 RESULT[next_id][next_soft] = 10
                 RESULT[next_id]['software_bonus'] = 10
         if u'软件' in RESULT[next_id]['text'] or u'app' in RESULT[next_id]['text']:
@@ -149,6 +148,10 @@ def read_thread_users(content):
     prompt1.configure(text='提取成功')
     prompt2.configure(text='请粘贴帖子第' + str(PAGE_COUNT) + '页的源代码：')
     T1.delete('1.0', END)
+
+
+def process_text(text):
+    return text.lower().replace(' ', '').replace('-', '')
 
 
 def read_from_ui():
